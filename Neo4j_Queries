@@ -1,0 +1,68 @@
+//Copy and paste all queries into Neo4j browser: http://localhost:7474/browser/
+//or download drivers for Neo4j using documentation on their product site
+
+
+CREATE INITIAL GRAPH:
+//edit 'file_name' with the file created by GraphGene.rb
+========================================================
+
+USING PERIODIC COMMIT 
+LOAD CSV WITH HEADERS FROM
+'file:///file_name.csv' AS line 
+with line
+create (c:caid {id:toString(line.CAID), pathogenicty: line.`Clinical Significance`})
+merge(review:Review {status:line.`Review Status`})
+merge(allele:Allele {freq:line.`Allele freq`})
+merge(protein:Protein {id:line.`Protein Changes`})
+merge(clinsig:Clinsig {id: line.`Clinical Significance`})
+merge(eval:Evaluation {eval:line.`Last Evaluated`})
+
+merge(c)-[:REVIEW_STATUS]->(review)
+merge(c)-[:ALLELE_FREQ]->(allele)
+merge(c)-[:PROTEIN_CHANGE]->(protein)
+merge(protein)-[:CLINICAL_SIGNIFICANCE]->(clinsig)
+merge(c)-[:LAST_EVAL]->(eval)
+
+=========================================================
+
+CREATE CONTRADICTION LINKS BETWEEN CONFLICTING CAIDS (OPTIONAL):
+//edit 'file_name' with the file created by CreateLinks.rb
+=========================================================
+
+LOAD CSV WITH HEADERS FROM
+'file:///file_name.csv' AS line 
+match(caid1 {id:line.caid1})
+match(caid2 {id:line.caid2})
+merge(caid1)-[:CONTRADICTS]->(caid2)
+
+=========================================================
+
+QUERY THAT RETURNS CAIDS AND AMINO ACIDS WITH CONFLICTING PATHOGENICITIES
+//Can choose to return protein and caid, just protein or just caids in last line of query
+=========================================================
+
+MATCH (protein)-[r:CLINICAL_SIGNIFICANCE]->()
+WITH protein, count(r) as rel_cnt
+WHERE rel_cnt > 1
+match(caid)-[r:PROTEIN_CHANGE]->(protein)
+RETURN protein, caid
+
+=========================================================
+
+QUERY THAT RETURNS DESIRED PROTEIN IN GRAPH
+//edit 'protein_name' with name of protein in graph. ex: 'Val162='
+=========================================================
+
+match(protein:Protein {id:"protein_name"})
+return protein
+
+=========================================================
+
+QUERY THAT RETURNS DESIRED CAID IN GRAPH
+//edit 'caid' with name of caid in graph. ex: 'CA056188'
+=========================================================
+
+match(variant: caid {id:"caid"})
+return variant
+
+=========================================================
