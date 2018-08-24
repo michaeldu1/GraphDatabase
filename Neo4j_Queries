@@ -4,6 +4,7 @@
 
 CREATE INITIAL GRAPH:
 //edit 'file_name' with the file created by GraphGene.rb
+//ex file: neobrca1.csv
 ========================================================
 
 USING PERIODIC COMMIT 
@@ -20,13 +21,14 @@ merge(eval:Evaluation {eval:line.`Last Evaluated`})
 merge(c)-[:REVIEW_STATUS]->(review)
 merge(c)-[:ALLELE_FREQ]->(allele)
 merge(c)-[:PROTEIN_CHANGE]->(protein)
-merge(protein)-[:CLINICAL_SIGNIFICANCE]->(clinsig)
+merge(c)-[:CLINICAL_SIGNIFICANCE]->(clinsig)
 merge(c)-[:LAST_EVAL]->(eval)
 
 =========================================================
 
 CREATE CONTRADICTION LINKS BETWEEN CONFLICTING CAIDS (OPTIONAL):
 //edit 'file_name' with the file created by CreateLinks.rb
+//ex file: brca1_links.csv
 =========================================================
 
 LOAD CSV WITH HEADERS FROM
